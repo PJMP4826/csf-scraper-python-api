@@ -1,0 +1,37 @@
+# Entorno virtual y configuraciones locales
+.venv/
+venv/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Bytecode de Python y caché
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# Archivos generados por empaquetadores (PyInstaller, Nuitka, cx_Freeze)
+build/
+dist/
+*.manifest
+*.spec
+
+# Datos, logs y almacenamiento en runtime
+storage/
+logs/
+*.log
+*.sql
+*.db
+*.sqlite3
+
+# Artefactos de IDEs y OS (Windows)
+.vscode/
+.idea/
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+[Dd]esktop.ini
+$RECYCLE.BIN/
