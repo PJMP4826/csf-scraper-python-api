@@ -5,7 +5,7 @@ logger = logging.getLogger("app")
 logger.setLevel(logging.DEBUG)
 
 # ruta relativa a la raiz del proyecto
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path(__file__).resolve().parents[1]
 LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
