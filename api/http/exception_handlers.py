@@ -28,8 +28,9 @@ def register_exception_handlers(app: FastAPI) -> None:
             )
             return error_response(
                 status_code=status_code,
-                message=_INTERNAL_MESSAGE,
+                message=exc.get_message(),
                 error_code=exc.error_code,
+                details=exc.details,
             )
 
         logger.warning(
