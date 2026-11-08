@@ -12,7 +12,7 @@ charset-normalizer==3.5.2
 click==8.5.1
 cloudpickle==3.1.2
 colorama==0.4.6
-csf-scraper-python==0.2.0
+csf-scraper-python==0.3.0
 dataclasses-json==0.6.7
 defusedxml==0.7.1
 Deprecated==3.0.1
