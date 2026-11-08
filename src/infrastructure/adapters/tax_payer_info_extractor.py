@@ -15,6 +15,8 @@ from csf_scraper import (
     CsfScraperException,
     EmptyPdfContentException,
     ImageExtractorNotConfiguredException,
+    ImageReaderApiException,
+    ImageReaderAuthenticationException,
     ImageReaderPort,
     ImageReadingException,
     InvalidIdCifFormatException,
@@ -28,6 +30,7 @@ from csf_scraper import (
     RfcFromPdfNotFoundException,
     Scraper,
 )
+from csf_scraper.image_readers.adapters.cpu.open_cv.errors import ImageLoadError
 from src.shared.errors.base_exception import BadRequestError
 from src.shared.errors.infrastructure_exceptions import (
     ConfigurationError,
@@ -75,11 +78,18 @@ _CONFIGURATION_EXCEPTIONS: Final[tuple[type[Exception], ...]] = (
     ImageExtractorNotConfiguredException,
 )
 
-#: Fallo del proveedor externo: SAT u OCR (502).
+#: Credenciales rechazadas por el proveedor de lectura (500): reintentar con
+#: la misma clave daría el mismo resultado.
+_AUTHENTICATION_EXCEPTIONS: Final[tuple[type[Exception], ...]] = (
+    ImageReaderAuthenticationException,
+)
+
+#: Fallo del proveedor externo: SAT u OCR/LLM (502). ``ImageReaderApiException``
+#: cubre también ``ImageReaderUnavailableException`` (saturación, caída o red).
 _UPSTREAM_EXCEPTIONS: Final[tuple[type[Exception], ...]] = (
     CifDownloadException,
     CifNotFoundException,
-    ImageReadingException,
+    ImageReaderApiException,
 )
 
 
@@ -141,11 +151,40 @@ class TaxPayerInfoExtractor:
                 error_code="CSF_PDF_TOOL_MISSING",
                 details={"reason": str(exception)},
             ) from exception
+        except _AUTHENTICATION_EXCEPTIONS as exception:
+            raise ConfigurationError(
+                "El proveedor de lectura de imágenes rechazó las credenciales.",
+                error_code="CSF_IMAGE_READER_AUTH_FAILED",
+                details={"reason": str(exception)},
+            ) from exception
         except _UPSTREAM_EXCEPTIONS as exception:
             raise UpstreamServiceError(
                 "El servicio del SAT no está disponible en este momento. "
                 "Intenta nuevamente más tarde.",
                 error_code="CSF_SERVICE_UNAVAILABLE",
+                details={"reason": str(exception)},
+            ) from exception
+        except ImageReadingException as exception:
+            raise ProcessingError(
+                "No fue posible leer el codigo QR de la constancia, verifique la calidad de la imagen",
+                error_code="CSF_QR_NOT_READABLE",
+                details={"reason": str(exception)},
+            ) from exception
+        except ImageLoadError as exception:
+            raise ProcessingError(
+                "No fue posible decodificar la imagen de la constancia. "
+                "Verifica que el archivo no esté dañado.",
+                error_code="CSF_IMAGE_DECODE_FAILED",
+                details={"reason": str(exception)},
+            ) from exception
+        except ValueError as exception:
+            # El QR se leyó pero no contiene el patrón RFC/idCIF esperado
+            # (``OpenCvImageReader._parse_id_cif_and_rfc``).
+            raise ProcessingError(
+                "El código QR se leyó, pero no contiene los datos fiscales "
+                "esperados. Verifica que sea una Constancia de Situación "
+                "Fiscal vigente.",
+                error_code="CSF_QR_PAYLOAD_INVALID",
                 details={"reason": str(exception)},
             ) from exception
         except CsfScraperException as exception:
