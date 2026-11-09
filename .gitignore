@@ -19,6 +19,9 @@ dist/
 *.manifest
 *.spec
 
+# Cache de dependencias empaquetadas (Poppler)
+windows/.cache/
+
 # Datos, logs y almacenamiento en runtime
 storage/
 logs/
