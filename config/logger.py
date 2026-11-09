@@ -1,13 +1,19 @@
 import logging
+import os
+import sys
 from pathlib import Path
 
 logger = logging.getLogger("app")
 logger.setLevel(logging.DEBUG)
 
 # ruta relativa a la raiz del proyecto
-BASE_DIR = Path(__file__).resolve().parents[1]
+if getattr(sys, "frozen", False):
+    BASE_DIR = Path(os.getenv("LOCALAPPDATA", Path.home())) / "csf-scraper-api"
+else:
+    BASE_DIR = Path(__file__).resolve().parents[1]
+
 LOG_DIR = BASE_DIR / "logs"
-LOG_DIR.mkdir(exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 # FILE HANDLER
 file_handler = logging.FileHandler(
@@ -22,6 +28,12 @@ file_formatter = logging.Formatter(
 file_handler.setFormatter(file_formatter)
 
 logger.addHandler(file_handler)
+
+# CONSOLE HANDLER
+if sys.stdout is not None and getattr(sys.stdout, "name", None) != os.devnull:
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(file_formatter)
+    logger.addHandler(console_handler)
 
 
 # logger.debug("Debug message")
