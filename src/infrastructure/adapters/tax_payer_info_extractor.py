@@ -26,6 +26,7 @@ from csf_scraper import (
     PdfToTextConvertException,
     PersonaFisica,
     PersonaMoral,
+    RfcCifExtractorPort,
     RfcFromImageNotFoundException,
     RfcFromPdfNotFoundException,
     Scraper,
@@ -94,10 +95,15 @@ _UPSTREAM_EXCEPTIONS: Final[tuple[type[Exception], ...]] = (
 
 
 class TaxPayerInfoExtractor:
-    def __init__(self, image_reader: ImageReaderPort) -> None:
+    def __init__(
+        self,
+        image_reader: ImageReaderPort,
+        pdf_extractor: RfcCifExtractorPort | None = None,
+    ) -> None:
         # ``Scraper`` consume un ``RfcCifExtractorPort``: se adapta el motor de
         # lectura (``ImageReaderPort``) con ``CsfImageExtractor``.
         self._image_extractor = CsfImageExtractor(image_reader)
+        self._pdf_extractor = pdf_extractor
 
         # Estrategias de lectura: MIME type -> (sufijo del temporal, lector).
         # Agregar un formato soportado es agregar una entrada aquí.
@@ -121,7 +127,10 @@ class TaxPayerInfoExtractor:
         )
 
         try:
-            async with Scraper.create(image_extractor=self._image_extractor) as scraper:
+            async with Scraper.create(
+                pdf_extractor=self._pdf_extractor,
+                image_extractor=self._image_extractor,
+            ) as scraper:
                 person = await read(scraper, file_path)
         except _INVALID_INPUT_EXCEPTIONS as exception:
             raise BadRequestError(
