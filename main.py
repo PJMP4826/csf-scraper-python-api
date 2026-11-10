@@ -8,9 +8,12 @@ from fastapi.responses import JSONResponse
 warnings.filterwarnings("ignore", category=UserWarning)
 
 app = FastAPI(
-    title="API para la lectura de la constancia de situacion fiscal",
+    title="API de Trámites Fiscales",
     docs_url="/docs",
-    description="",
+    description=(
+        "API para la lectura y descarga de la Constancia de Situación "
+        "Fiscal (CSF) y la descarga de la Opinión de Cumplimiento."
+    ),
     version="1.0.0",
 )
 
