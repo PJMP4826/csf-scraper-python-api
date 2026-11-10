@@ -58,6 +58,14 @@ def clean_build() -> None:
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def clean_dist() -> None:
+    if DIST_DIR.exists():
+        print(f"--- Eliminando contenido de {DIST_DIR}... ---")
+        shutil.rmtree(DIST_DIR)
+
+    DIST_DIR.mkdir(parents=True, exist_ok=True)
+
+
 def _download(url: str, destination: Path) -> None:
     request = urllib.request.Request(
         url,
@@ -286,6 +294,7 @@ def main() -> int:
     args = parser.parse_args()
 
     clean_build()
+    clean_dist()
 
     try:
         exit_code = run_compilation(
