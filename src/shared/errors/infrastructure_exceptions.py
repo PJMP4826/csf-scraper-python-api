@@ -70,6 +70,7 @@ class ProcessingError(InfrastructureException):
     """El archivo es válido pero no pudo procesarse (422)."""
 
     http_status = 422
+    is_public = True
 
     def __init__(
         self,
