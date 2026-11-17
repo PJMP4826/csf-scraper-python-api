@@ -78,8 +78,8 @@ class SatFielCredentials(Credentials):
         object.__setattr__(self, "_rfc", rfc)
 
     @property
-    def rfc(self) -> Rfc:
-        return self._rfc
+    def rfc(self) -> str:
+        return self._rfc.value
 
     @staticmethod
     def _as_bytes(value: bytes | str) -> bytes:
