@@ -20,3 +20,15 @@ ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
         "description": "Fallo del SAT o del lector externo.",
     },
 }
+
+DOWNLOAD_ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
+    **ERROR_RESPONSES,
+    404: {
+        "model": ErrorEnvelope,
+        "description": "La constancia no está disponible en el SAT.",
+    },
+    503: {
+        "model": ErrorEnvelope,
+        "description": "No fue posible conectar con el SAT.",
+    },
+}
