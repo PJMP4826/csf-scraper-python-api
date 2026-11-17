@@ -22,16 +22,18 @@ from src.domain.errors.constancia_download_error import (
     SatNetworkError,
     SatSsoError,
 )
+from src.domain.ports import PdfCsfDownloaderPort
 
 #: Nombre usado cuando el SAT no informa uno en ``Content-Disposition``.
 _DEFAULT_PDF_FILENAME = "constancia.pdf"
 
 
-class PdfCsfDownloader:
+class PdfCsfDownloader(PdfCsfDownloaderPort):
     """Descarga la CSF en PDF autenticándose con las credenciales FIEL."""
 
     async def download(
         self,
+        *,
         certificate: bytes,
         private_key: bytes,
         pass_phrase: str,
