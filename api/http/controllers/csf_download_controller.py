@@ -13,16 +13,6 @@ from src.shared.errors.base_exception import BadRequestError
 #: Tamaño máximo aceptado para cada archivo de la FIEL.
 MAX_FIEL_FILE_SIZE = 1 * 1024 * 1024
 
-#: Nombre usado cuando el PDF no informa uno seguro.
-_DEFAULT_FILENAME = "constancia.pdf"
-
-
-def _safe_filename(filename: str) -> str:
-    """Reduce ``filename`` a un nombre de archivo seguro."""
-    name = Path(filename.replace("\\", "/")).name
-    name = re.sub(r'[\r\n"]', "", name).strip()
-    return name if name not in {"", ".", ".."} else _DEFAULT_FILENAME
-
 
 class CsfDownloadController:
     """Descarga la CSF autenticándose con las credenciales FIEL."""
@@ -50,7 +40,7 @@ class CsfDownloadController:
             media_type="application/pdf",
             headers={
                 "Content-Disposition": (
-                    f'attachment; filename="{_safe_filename(pdf.file_name)}"'
+                    f'attachment; filename="{pdf.file_name}"'
                 )
             },
         )
