@@ -45,6 +45,8 @@ class SatFielCredentials(Credentials):
     private_key_pem: str
     pass_phrase: SecretStr
     _rfc: Rfc
+    _certificate_der: bytes
+    _private_key_der: bytes
 
     def __init__(
         self,
@@ -76,10 +78,34 @@ class SatFielCredentials(Credentials):
         object.__setattr__(self, "private_key_pem", private_key_pem)
         object.__setattr__(self, "pass_phrase", secret)
         object.__setattr__(self, "_rfc", rfc)
+        object.__setattr__(
+            self,
+            "_certificate_der",
+            parsed_certificate.public_bytes(Encoding.DER),
+        )
+        object.__setattr__(
+            self,
+            "_private_key_der",
+            parsed_private_key.private_bytes(
+                encoding=Encoding.DER,
+                format=PrivateFormat.PKCS8,
+                encryption_algorithm=BestAvailableEncryption(password),
+            ),
+        )
 
     @property
     def rfc(self) -> str:
         return self._rfc.value
+
+    @property
+    def certificate_der(self) -> bytes:
+        """Certificado en DER, listo para la librería de descarga."""
+        return self._certificate_der
+
+    @property
+    def private_key_der(self) -> bytes:
+        """Llave privada en DER cifrada con la contraseña original."""
+        return self._private_key_der
 
     @staticmethod
     def _as_bytes(value: bytes | str) -> bytes:
