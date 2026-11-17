@@ -15,7 +15,8 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def handle_base_app_exception(
         request: Request, exc: BaseAppException
     ) -> JSONResponse:
-        status_code = getattr(exc, "http_status", 500)
+        payload = exc.to_http_dict()
+        status_code = payload["status"]
 
         if status_code >= 500:
             logger.error(
@@ -26,26 +27,22 @@ def register_exception_handlers(app: FastAPI) -> None:
                 exc.error_code,
                 exc_info=exc,
             )
-            return error_response(
-                status_code=status_code,
-                message=exc.get_message(),
-                error_code=exc.error_code,
-                details=exc.details,
+        else:
+            logger.warning(
+                "Error %s en %s %s | code=%s | %s",
+                status_code,
+                request.method,
+                request.url.path,
+                exc.error_code,
+                exc.get_message(),
             )
 
-        logger.warning(
-            "Error %s en %s %s | code=%s | %s",
-            status_code,
-            request.method,
-            request.url.path,
-            exc.error_code,
-            exc.get_message(),
-        )
         return error_response(
             status_code=status_code,
-            message=exc.get_message(),
-            error_code=exc.error_code,
-            details=exc.details,
+            title=payload["title"],
+            message=payload["message"],
+            error_code=payload["error_code"],
+            details=payload["details"],
         )
 
     @app.exception_handler(Exception)

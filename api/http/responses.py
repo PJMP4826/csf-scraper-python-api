@@ -44,13 +44,14 @@ def error_response(
     message: str,
     error_code: Optional[str] = None,
     details: Optional[Dict[str, Any]] = None,
+    title: Optional[str] = None,
 ) -> JSONResponse:
     """Envelope único de respuesta de error."""
     return JSONResponse(
         status_code=status_code,
         content={
             "status": status_code,
-            "title": _title_for(status_code),
+            "title": title or _title_for(status_code),
             "message": message,
             "data": None,
             "error_code": error_code,
