@@ -9,6 +9,7 @@ from cryptography.hazmat.primitives.serialization import (
     BestAvailableEncryption,
     Encoding,
     PrivateFormat,
+    load_der_private_key,
 )
 from cryptography.x509.oid import NameOID
 from csf_scraper import Rfc
@@ -240,6 +241,27 @@ def test_invalid_rfc_raises_semantic_error() -> None:
             current.private_key_der,
             _PASSWORD,
         )
+
+
+def test_der_properties_can_be_loaded_again(
+    material: SimpleNamespace,
+) -> None:
+    credentials = SatFielCredentials(
+        material.certificate_der,
+        material.private_key_der,
+        _PASSWORD,
+    )
+
+    certificate = x509.load_der_x509_certificate(credentials.certificate_der)
+    private_key = load_der_private_key(
+        credentials.private_key_der, _PASSWORD.encode()
+    )
+
+    assert certificate.public_bytes(Encoding.DER) == material.certificate_der
+    assert (
+        private_key.public_key().public_numbers()
+        == material.key.public_key().public_numbers()
+    )
 
 
 def test_password_is_hidden_from_repr(material: SimpleNamespace) -> None:
