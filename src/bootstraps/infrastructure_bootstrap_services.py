@@ -1,3 +1,10 @@
+def get_pdf_csf_downloader():
+    """Descargador de la CSF autenticado con la FIEL."""
+    from src.infrastructure.adapters.pdf_csf_downloader import PdfCsfDownloader
+
+    return PdfCsfDownloader()
+
+
 def get_tax_payer_info_extractor():
     """Extractor de datos fiscales a partir de una CSF (PDF, JPG o PNG)."""
     from csf_scraper import CsfPdfExtractor, OpenCvImageReader
