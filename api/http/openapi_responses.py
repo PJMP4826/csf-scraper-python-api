@@ -25,7 +25,7 @@ DOWNLOAD_ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
     **ERROR_RESPONSES,
     404: {
         "model": ErrorEnvelope,
-        "description": "La constancia no está disponible en el SAT.",
+        "description": "El documento solicitado no está disponible en el SAT.",
     },
     503: {
         "model": ErrorEnvelope,
