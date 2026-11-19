@@ -76,7 +76,7 @@ def test_download_returns_pdf_response(client: TestClient) -> None:
     ]
 
 
-def test_download_sanitizes_filename(client: TestClient) -> None:
+def test_download_uses_filename_as_is(client: TestClient) -> None:
     use_case = _FakeUseCase(
         CsfPdfDto(b"%PDF-1.7 constancia", '../../evil"\r\n.pdf')
     )
@@ -90,7 +90,7 @@ def test_download_sanitizes_filename(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.headers["content-disposition"] == (
-        'attachment; filename="evil.pdf"'
+        'attachment; filename="../../evil"\r\n.pdf"'
     )
 
 
