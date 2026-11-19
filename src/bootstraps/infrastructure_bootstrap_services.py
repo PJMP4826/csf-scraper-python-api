@@ -5,6 +5,15 @@ def get_pdf_csf_downloader():
     return PdfCsfDownloader()
 
 
+def get_pdf_opinion_cumplimiento_downloader():
+    """Descargador de la Opinión de Cumplimiento autenticado con la FIEL."""
+    from src.infrastructure.adapters.pdf_opinion_cumplimiento_downloader import (
+        PdfOpinionCumplimientoDownloader,
+    )
+
+    return PdfOpinionCumplimientoDownloader()
+
+
 def get_tax_payer_info_extractor():
     """Extractor de datos fiscales a partir de una CSF (PDF, JPG o PNG)."""
     from csf_scraper import CsfPdfExtractor, OpenCvImageReader
