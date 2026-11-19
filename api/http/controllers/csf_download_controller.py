@@ -1,17 +1,11 @@
-import re
-from pathlib import Path
+from fastapi import Depends, Response, status
 
-from fastapi import Depends, Response, UploadFile, status
-
+from api.http.fiel_file_reader import read_fiel_file
 from api.http.schemas import CsfDownloadRequest
 from src.application.use_cases import DownloadCsfUseCase
 from src.bootstraps.application_bootstrap_services import (
     get_download_csf_use_case,
 )
-from src.shared.errors.base_exception import BadRequestError
-
-#: Tamaño máximo aceptado para cada archivo de la FIEL.
-MAX_FIEL_FILE_SIZE = 1 * 1024 * 1024
 
 
 class CsfDownloadController:
@@ -21,10 +15,10 @@ class CsfDownloadController:
         self._use_case = use_case
 
     async def handle(self, request: CsfDownloadRequest) -> Response:
-        certificate = await self._read_file(
+        certificate = await read_fiel_file(
             request.certificate, "certificado"
         )
-        private_key = await self._read_file(
+        private_key = await read_fiel_file(
             request.private_key, "llave privada"
         )
 
@@ -44,25 +38,6 @@ class CsfDownloadController:
                 )
             },
         )
-
-    async def _read_file(self, file: UploadFile, label: str) -> bytes:
-        """Lee el archivo y valida que no esté vacío ni exceda el límite."""
-        content = await file.read(MAX_FIEL_FILE_SIZE + 1)
-
-        if not content:
-            raise BadRequestError(
-                f"El {label} está vacío.",
-                error_code="EMPTY_FIEL_FILE",
-            )
-
-        if len(content) > MAX_FIEL_FILE_SIZE:
-            raise BadRequestError(
-                f"El {label} supera el tamaño máximo permitido "
-                f"({MAX_FIEL_FILE_SIZE // (1024 * 1024)} MB).",
-                error_code="FIEL_FILE_TOO_LARGE",
-            )
-
-        return content
 
 
 def get_csf_download_controller(
